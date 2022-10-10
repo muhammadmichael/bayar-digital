@@ -105,15 +105,11 @@ router.post('/topup/:id', function(req, res, next) {
       });
     })
     .catch(err => {
-      res.json({
-        info: "HEHEHEHE"
-      });
+      res.send(err);
     });
   })
   .catch(err => {
-    res.json({
-      info: "HOHOHO"
-    });
+    res.send(err);
   });
 });
 
