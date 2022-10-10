@@ -1,0 +1,29 @@
+
+<%- include('templates/header')-%>
+
+<h1>History Transaksi</h1>
+<br>
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Dari</th>
+        <th scope="col">Kepada</th>
+        <th scope="col">Nominal</th>
+        <th scope="col">Tanggal</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%transaksis.forEach(function(transaksi) {%>  
+      <tr>
+        <td><%=transaksi.idUser%></td>
+        <td><%=transaksi.idTarget%></td>
+        <td><%=transaksi.nominalSaldo%></td>
+        <td><%=transaksi.tanggal%></td>
+        <td><%=transaksi.status%></td>
+      </tr>
+      <%});%>
+    </tbody>
+</table>
+
+<%- include('templates/footer')-%>
