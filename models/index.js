@@ -27,7 +27,7 @@ db.transaksis = require('./transaksi')(sequelize, Sequelize);
 
 // Associations
 // One-to-one, satu user punya satu saldo
-db.users.hasOne(db.saldos);
-db.saldos.belongsTo(db.users);
+db.users.hasOne(db.saldos, {foreignKey: 'iduser'});
+db.saldos.belongsTo(db.users, {foreignKey: 'iduser'});
 
 module.exports = db;
