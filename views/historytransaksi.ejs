@@ -8,8 +8,8 @@
       <tr>
         <th scope="col">Dari</th>
         <th scope="col">Kepada</th>
-        <th scope="col">Nominal</th>
         <th scope="col">Tanggal</th>
+        <th scope="col">Nominal</th>
         <th scope="col">Status</th>
       </tr>
     </thead>
@@ -18,10 +18,23 @@
       <tr>
         <td><%=transaksi.idUser%></td>
         <td><%=transaksi.idTarget%></td>
-        <td><%=transaksi.nominalSaldo%></td>
-        <td><%=transaksi.tanggal%></td>
-        <td><%=transaksi.status%></td>
+        <td><%=transaksi.tanggal.toString().substring(0,24) %></td>
+
+        <!-- Nominal -->
+        <% if(transaksi.status == "CR" ){ %>
+            <td style="color: blue;">+ <%=transaksi.nominalSaldo%></td>
+        <% } else{ %>
+            <td style="color: red;">- <%=transaksi.nominalSaldo%></td>
+        <% } %>
+
+        <!-- Status -->
+        <% if(transaksi.status == "CR" ){ %>
+            <td><span class="badge text-bg-primary">Credit</span></td>
+        <% } else{ %>
+            <td><span class="badge text-bg-danger">Debit</span></td>
+        <% } %>
       </tr>
+
       <%});%>
     </tbody>
 </table>
