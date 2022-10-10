@@ -11,7 +11,14 @@ const Saldo = db.saldos;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('transfer', { title: 'bebas' });
+});
+
+
+/* GET home page. */
+router.get('/transfer', function(req, res, next) {
+  
+  res.render('transfer', { title: 'transfer' });
 });
 
 // REGISTER
