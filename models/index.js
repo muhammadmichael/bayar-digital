@@ -5,7 +5,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 // sql server
 
 
-const sequelize = new Sequelize('BayarDigitalDB', 'akunbayardigital', 'pass123', {
+const sequelize = new Sequelize('NodeDB', 'irfan123', '123456', {
     dialect: 'mssql',
     dialectOptions: {
       // Observe the need for this nested `options` field for MSSQL
