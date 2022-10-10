@@ -143,8 +143,37 @@ router.get('/transfer/:id', function(req, res, next) {
   });
 });
 
+//Untuk Mendapatkan Form Transfer Saldo
+router.get('/transfer_saldo/:id', function(req, res, next) {
+  var id = parseInt(req.params.id);
+  User.findOne({
+      include: [Saldo],
+      where: {id: id}
+  })
+  .then(transfer => {
+    if(transfer){
+      //res.send(transfer);
+        res.render('transfer_saldo', {
+          title: 'Silahkan Transfer',
+          transfer: transfer,
+          saldo: transfer.saldo
+        });
+    }else{
+      res.json({
+        info: "Data Tidak Ditemukan"
+      })
+    }
+  })
+  .catch(err => {
+    res.json({
+      info: "Data Id Tidak Ada",
+      err
+    })
+  });
+});
+
 //Untuk Transfer Saldo
-router.post('/transfer/:id', function(req, res, next) {
+router.post('/transfer_saldo/:id', function(req, res, next) {
   var id = parseInt(req.params.id);
   var idTarget = parseInt(req.body.idTarget);
   var nominalTransfer = parseFloat(req.body.nominalTransfer);
