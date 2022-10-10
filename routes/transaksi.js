@@ -3,26 +3,71 @@ var router = express.Router();
 var bcrypt = require('bcryptjs')
 
 const db = require('../models');
+const transaksi = require('../models/transaksi');
 const User = db.users;
 const Transaksi = db.transaksis;
 const Op = db.Sequelize.Op;
 
 // Get history transaksi
 router.get('/history', function (req, res, next) {
+
+    // var usernameList = []
+    // var targetIdList = []
+    // const userNameList = Transaksi.findAll();
+    // console.log(userNameList);
+
+    // let kosong = []
+    // async function getTransaksi() {
+    //     return await Transaksi.findAll;
+    //   }
+    // kosong = getTransaksi();
+    // console.log(kosong)
+
     Transaksi.findAll()
-    .then(data => {
-      res.render('historytransaksi', {
-        title: 'History Transaksi',
-        transaksis: data
-      });
+    .then(transaksi => {
+        
+    // TODO.
+    //     // transaksi.forEach( 
+    //     //     (i) => {
+    //     //         // Simpan id user ke userIdList sebagai usernamenya
+    //     //         User.findByPk(i.dataValues.idUser)
+    //     //         .then(user => {
+    //     //             usernameList.push(user.dataValues.username);
+
+    //     //             // Simpan id user target ke targetIdList sebagai usernamenya
+    //     //             // if (transaksi.dataValues.idTarget != null) {
+    //     //             //     User.findByPk(transaksi.dataValues.idTarget)
+    //     //             //     .then(user => {
+    //     //             //         targetIdList.push(user.dataValues.id);
+    //     //             //         console.log(userIdList);
+    //     //             //         console.log(targetIdList);
+    //     //             //     })
+    //     //             // } else {
+    //     //             //     targetIdList.push(null);
+    //     //             // }
+    //     //                 res.render('historytransaksi', {
+    //     //                     title: 'History Transaksi',
+    //     //                     transaksis: transaksi,
+    //     //                     usernameList: usernameList,
+    //     //                 });
+                    
+    //     //         })
+                
+    //     //     }
+    //     //   );
+
+          res.render('historytransaksi', {
+            title: 'History Transaksi',
+            transaksis: transaksi
+          });
     })
     .catch(err => {
-      res.json({
-        info: "Error",
-        message: err.message,
-        transaksis: []
+        res.json({
+          info: "Error",
+          message: err.message,
+          transaksis: []
+        });
       });
-    });
 });
 
 // tes post
