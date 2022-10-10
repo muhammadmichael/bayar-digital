@@ -68,6 +68,7 @@ router.get('/topup/:id', function(req, res, next) {
 	});
 });
 
+//Untuk Update Jumlah Saldo
 router.post('/topup/:id', function(req, res, next) {
   var id = parseInt(req.params.id);
   var topup = parseFloat(req.body.saldo);
@@ -78,20 +79,41 @@ router.post('/topup/:id', function(req, res, next) {
     var nominalSaldo = {
       nominalSaldo: topupSaldo
     }
+
+    //Sudah Menambahkan Saldo Lama dan Jumlah TopUp
     Saldo.update(nominalSaldo, {
       where: {id: id}
     })
-    .then(num => {
-        res.json({
-          saldoSekarang: nominalSaldo
-        })
+    .then(saldoBaru => {
+    var transaksi = {
+      idUser: id,
+      idTarget: null,
+      nominalSaldo: topupSaldo,
+      tanggal: Date(),
+      status: "Debit"
+    }
+      //Membuat History Transaksi
+      Transaksi.create(transaksi)
+      .then(num => {
+          res.json({
+            saldoSekarang: nominalSaldo,
+            status: num.status
+          })
+      })
+      .catch(err => {
+          res.send(err);
+      });
     })
     .catch(err => {
-        res.send(err);
+      res.json({
+        info: "HEHEHEHE"
+      });
     });
   })
   .catch(err => {
-      res.send(err);
+    res.json({
+      info: "HOHOHO"
+    });
   });
 });
 
