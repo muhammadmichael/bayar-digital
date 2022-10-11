@@ -222,10 +222,31 @@ router.get('/history/:id', function (req, res, next) {
 });
 
 router.get('/transfersaldo/:id', function(req, res, next) {
-  
-  res.render('transferSaldo', {
-    title: 'Express Start',
+  var id = parseInt(req.params.id);
+  User.findOne({
+      include: [Saldo],
+      where: {id: id}
   })
-})
+  .then(transfer => {
+    if(transfer){
+      //res.send(transfer);
+        res.render('transferSaldo', {
+          title: 'Silahkan Transfer',
+          transfer: transfer,
+          saldo: transfer.saldo
+        });
+    }else{
+      res.json({
+        info: "Data Tidak Ditemukan"
+      })
+    }
+  })
+  .catch(err => {
+    res.json({
+      info: "Data Id Tidak Ada",
+      err
+    })
+  });
+});
 
 module.exports = router;
