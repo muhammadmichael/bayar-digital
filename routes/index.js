@@ -221,4 +221,11 @@ router.get('/history/:id', function (req, res, next) {
       });
 });
 
+router.get('/transfersaldo/:id', function(req, res, next) {
+  
+  res.render('transferSaldo', {
+    title: 'Express Start',
+  })
+})
+
 module.exports = router;
