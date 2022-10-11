@@ -2,6 +2,13 @@
 <%- include('templates/header')-%>
 
 <h1><%= title %></h1>
-<p>Welcome to <%= title %></p>
+<p>Saldo Anda Sekarang to <%= saldo.nominalSaldo %></p>
+
+<div class="text-center">
+    <a href="/topup/<%= saldo.iduser %>" class ="btn btn-primary">Top Up</a> &nbsp; 
+    <a href="/transfer" class ="btn btn-primary">Transfer</a> &nbsp; 
+    <a href="/history/<%= saldo.iduser %>" class ="btn btn-primary">History</a> &nbsp; 
+    <br>
+</div>
 
 <%- include('templates/footer')-%>
