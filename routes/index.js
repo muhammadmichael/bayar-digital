@@ -12,7 +12,15 @@ const Op = db.Sequelize.Op;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', {
+    title: 'Express',
+  })
+})
+
+router.get('/valid/:id', function(req, res, next) {
+  res.render('index', { 
+    title: 'Express',
+    id: req.params.id });
 });
 
 // REGISTER
@@ -33,14 +41,19 @@ router.post('/register', function (req, res, next) {
     password: hash,
   }
 
-  User.create(user)
+  // Create user dan juga saldo dengan nominal 0
+  Saldo.create({
+    nominalSaldo: 0,
+    user
+  }, {
+    include: [User]
+  })
     .then(
-      res.redirect('/login')
+      res.redirect('/')
     )
     .catch(err => {
       res.redirect('/login')
     });
-
 });
 
 // Login
@@ -61,7 +74,7 @@ router.post('/login', function (req, res, next) {
           req.session.username = req.body.username;
           req.session.islogin = true;
 
-          res.redirect('/');
+          res.redirect('/valid/'+ data.id);
         } else {
           res.redirect('/login')
         }

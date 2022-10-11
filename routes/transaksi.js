@@ -9,58 +9,32 @@ const Transaksi = db.transaksis;
 const Op = db.Sequelize.Op;
 
 // Get history transaksi
-router.get('/history', function (req, res, next) {
+router.get('/history/:id', function (req, res, next) {
 
-    var usernameList = []
-    var targetIdList = []
-    // const userNameList = Transaksi.findAll();
-    // console.log(userNameList);
+  var id = req.params.id;
 
-    // let kosong = []
-    // async function getTransaksi() {
-    //     return await Transaksi.findAll;
-    //   }
-    // kosong = getTransaksi();
-    // console.log(kosong)
-
-    Transaksi.findAll()
+    Transaksi.findAll({
+      where: {
+        [Op.or]: [{idUser: id}, {idTarget: id}]
+      },
+      include: [
+        {
+          // include array user pengirim, Foreign Key: idUser
+          model: User,
+          as: 'pengirim',
+        },
+        {
+          // include array user penerima, Foreign Key: idTarget
+          model: User,
+          as: 'target'
+        }
+    ],
+    })
     .then(transaksi => {
-        
-    // // TODO.
-    //     transaksi.forEach( 
-    //         (item) => {
-    //             // Simpan id user ke userIdList sebagai usernamenya
-    //             User.findByPk(item.dataValues.idUser)
-    //             .then(user => {
-    //                 usernameList.push(user.dataValues.username);
-
-    //                 // Simpan id user target ke targetIdList sebagai usernamenya
-    //                 // if (item.dataValues.idTarget != null) {
-    //                 //     User.findByPk(transaksi.dataValues.idTarget)
-    //                 //     .then(user => {
-    //                 //         targetIdList.push(user.dataValues.id);
-    //                 //         console.log(userIdList);
-    //                 //         console.log(targetIdList);
-    //                 //     })
-    //                 // } else {
-    //                 //     targetIdList.push(null);
-    //                 // }
-    //                 console.log(usernameList)
-    //                     res.render('historytransaksi', {
-    //                         title: 'History Transaksi',
-    //                         transaksis: transaksi,
-    //                         usernameList: usernameList,
-    //                     });
-                    
-    //             })
-                
-    //         }
-    //       );
-
-          res.render('historytransaksi', {
-            title: 'History Transaksi',
-            transaksis: transaksi
-          });
+      res.render('historytransaksi', {
+        title: 'History Transaksi',
+        transaksis: transaksi,
+      });
     })
     .catch(err => {
         res.json({
