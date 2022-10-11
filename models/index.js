@@ -1,9 +1,4 @@
 const { Sequelize, DataTypes } = require('sequelize');
-// driver sqlite
-// const sequelize = new Sequelize('sqlite::memory:');
-
-// sql server
-
 
 const sequelize = new Sequelize('BayarDigitalDB', 'akunbayardigital', 'pass123', {
     dialect: 'mssql',
