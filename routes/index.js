@@ -178,42 +178,52 @@ router.post('/transfer_saldo/:id', function(req, res, next) {
   var idTarget = parseInt(req.body.idTarget);
   var nominalTransfer = parseFloat(req.body.nominalTransfer);
 
-  Saldo.findByPk(id)
-  .then(saldoLama => {
-    if(saldoLama.nominalSaldo < nominalTransfer){
-      res.json({
-        info: "Saldo Anda Tidak Mencukupi"
-      })
-    }else{
-      var saldoSekarang = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
-      var nominalSaldo = {
-        nominalSaldo: saldoSekarang
-      }
-      //Sudah Mengurangi Saldo Lama dan Jumlah Transfer
-      Saldo.update(nominalSaldo, {
-        where: {id: id}
-      })
-      .then(saldoBaru => {
-        //Membuat History Transaksi
-        //Untuk Menambahkan Saldo Target
-        Saldo.findByPk(idTarget)
-        .then(saldoTarget => {
-          var saldoTargetSekarang = parseFloat(saldoTarget.nominalSaldo + nominalTransfer);
-          var nominalSaldoTarget = {
-            nominalSaldo: saldoTargetSekarang
-          }
-          //Sudah Menambahkan Saldo Target
-          Saldo.update(nominalSaldoTarget, {
-            where: {id: idTarget}
-          })
-          .then(saldoTargetBaru => {//Membuat History Transaksi
-            var transaksi = {
-              idUser: id,
-              idTarget: idTarget,
-              nominalSaldo: saldoSekarang,
-              tanggal: Date(),
-              status: "Debit"
+  if(idTarget != id && idTarget != null){
+    User.findOne({
+      include: [Saldo],
+      where: {id: id}
+    })
+    .then(transfer => {
+      Saldo.findByPk(id)
+    .then(saldoLama => {
+      if(saldoLama.nominalSaldo < nominalTransfer && saldoLama.nominalSaldo != 0){
+        res.json({
+          info: "Saldo Anda Tidak Mencukupi"
+        })
+      }else{
+        var saldoSekarang = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
+        var nominalSaldo = {
+          nominalSaldo: saldoSekarang
+        }
+        //Sudah Mengurangi Saldo Lama dan Jumlah Transfer
+        Saldo.update(nominalSaldo, {
+          where: {id: id}
+        })
+        .then(saldoBaru => {
+          //Membuat History Transaksi
+          //Untuk Menambahkan Saldo Target
+          Saldo.findByPk(idTarget)
+          .then(saldoTarget => {
+            var saldoTargetSekarang = parseFloat(saldoTarget.nominalSaldo + nominalTransfer);
+            var nominalSaldoTarget = {
+              nominalSaldo: saldoTargetSekarang
             }
+            //Sudah Menambahkan Saldo Target
+            Saldo.update(nominalSaldoTarget, {
+              where: {id: idTarget}
+            })
+            .then(saldoTargetBaru => {//Membuat History Transaksi
+              var transaksi = {
+                idUser: id,
+                idTarget: idTarget,
+                nominalSaldo: saldoSekarang,
+                tanggal: Date(),
+                status: "Debit"
+              }
+            })
+            .catch(err => {
+              res.send(err);
+            });
           })
           .catch(err => {
             res.send(err);
@@ -222,15 +232,20 @@ router.post('/transfer_saldo/:id', function(req, res, next) {
         .catch(err => {
           res.send(err);
         });
-      })
-      .catch(err => {
-        res.send(err);
-      });
-    }
-})
+      }
+  })
   .catch(err => {
     res.send(err);
   });
+  })
+    .catch(err => {
+      res.send(err);
+    });
+  }else{
+    res.json({
+      info: "ID penerima tidak boleh sama dengan ID pengirim / kosong"
+    })
+  }
 });
 
 module.exports = router;
