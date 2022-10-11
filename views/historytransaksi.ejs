@@ -17,7 +17,13 @@
       <%transaksis.forEach(function(transaksi) {%>  
       <tr>
         <td><%=transaksi.pengirim.username%></td>
-        <td><%=transaksi.target.username%></td>
+        <td>
+        <% try { %>
+          <%=transaksi.target.username%>
+        <% } catch { %>
+          -
+        <% } %>
+        </td>
         <td><%=transaksi.tanggal.toString().substring(0,24) %></td>
         <td style="color: blue;"><%=transaksi.nominalSaldo%></td>
         <td><span class="badge text-bg-primary"><%=transaksi.status%></span></td>
