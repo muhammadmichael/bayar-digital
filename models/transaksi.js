@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
     const Transaksi = sequelize.define("transaksi", {
         idUser: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
         },
         idTarget: {
             type: Sequelize.INTEGER
