@@ -1,0 +1,17 @@
+<%- include('templates/header')-%>
+<form>
+    <div class="form-group">
+      Nama User: <p><%= transfer.name %> </p><br>Saldo: 
+      <p><%= saldo.nominalSaldo %> </p>
+    </div>
+    <div class="form-group">
+      <label for="idpenerima">ID Penerima</label>
+      <input type="text" class="form-control" id="idpenerima" placeholder="Enter ID">
+    </div>
+    <div class="form-group">
+      <label for="nominal">Nominal</label>
+      <input type="text" class="form-control" id="nominal" placeholder="10000">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+<%- include('templates/footer')-%>
