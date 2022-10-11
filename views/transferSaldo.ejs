@@ -8,10 +8,20 @@
       <label for="idpenerima">ID Penerima</label>
       <input type="text" class="form-control" id="idpenerima" placeholder="Enter ID">
     </div>
-    <div class="form-group">
+    <div class="input-group mb-3 form-group">
+        <label for="nominal">Nominal</label>
+        <div class="input-group-prepend">
+          <span class="input-group-text">Rp. </span>
+        </div>
+        <input type="number" class="form-control" aria-label="Amount (to the nearest dollar)">
+        <div class="input-group-append">
+          <span class="input-group-text">.00</span>
+        </div>
+      </div>
+    <!-- <div class="form-group">
       <label for="nominal">Nominal</label>
       <input type="text" class="form-control" id="nominal" placeholder="10000">
-    </div>
+    </div> -->
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 <%- include('templates/footer')-%>
