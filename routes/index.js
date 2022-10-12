@@ -246,10 +246,10 @@ router.post('/payment', auth, function (req, res, next) {
   var userPenerima = req.body.userTarget;
   var nominalTransfer = parseFloat(req.body.nominal);
 
-  if (!req.body.date){
+  if (!req.body.date) {
     var tanggal = Date();
   }
-  else{
+  else {
     // Untuk REST API
     var tanggal = req.body.date;
   }
@@ -311,10 +311,10 @@ router.post('/payment', auth, function (req, res, next) {
                                 //   // saldoSekarang: nominalSaldo,
                                 //   status: num.status
                                 // })
-                                if (!req.body.date){
+                                if (!req.body.date) {
                                   res.redirect('/valid/' + pengirim.id);
                                 }
-                                else{
+                                else {
                                   // Untuk REST API
                                   res.json({
                                     info: "Transaksi Sukses",
