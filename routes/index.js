@@ -145,31 +145,27 @@ router.post('/topup/:id', function (req, res, next) {
   Saldo.findByPk(id)
     .then(saldoLama => {
       var topupSaldo = parseFloat(saldoLama.nominalSaldo + topup);
-      var nominalSaldo = {
+      var topUpInput = {
         nominalSaldo: topupSaldo
       }
 
       //Sudah Menambahkan Saldo Lama dan Jumlah TopUp
-      Saldo.update(nominalSaldo, {
+      Saldo.update(topUpInput, {
         where: { id: id }
       })
         .then(saldoBaru => {
           var transaksi = {
             idUser: id,
             idTarget: null,
-            nominalSaldo: topupSaldo,
+            nominalSaldo: topup,
             tanggal: Date(),
             status: "Top Up"
           }
           //Membuat History Transaksi
           Transaksi.create(transaksi)
             .then(num => {
-              // res.json({
-              //   saldoSekarang: nominalSaldo,
-              //   status: num.status
-              // })
-              // res.send(num)
               res.redirect('/valid/' + num.idUser);
+              //res.send(transaksi)
             })
             .catch(err => {
               res.send(err);
@@ -229,7 +225,7 @@ router.get('/transfer/:id', function (req, res, next) {
   })
     .then(transfer => {
       if (transfer) {
-        res.render('transfer', {
+        res.render('transferSaldo', {
           title: 'Silahkan Transfer',
           transfer: transfer,
           saldo: transfer.saldo
@@ -346,112 +342,7 @@ router.post('/transfer', function (req, res, next) {
         .catch(err => {
           res.send(err)
         });
-    })
-    .catch(err => {
-      res.send(err)
     });
-});
-
-//view trf saldo
-router.get('/transfersaldo/:id', function(req, res, next) {
-  var id = parseInt(req.params.id);
-  User.findOne({
-      include: [Saldo],
-      where: {id: id}
-  })
-  .then(transfer => {
-    if(transfer){
-      //res.send(transfer);
-        res.render('transferSaldo', {
-          title: 'Silahkan Transfer',
-          transfer: transfer,
-          saldo: transfer.saldo
-        });
-    }else{
-      res.json({
-        info: "Data Tidak Ditemukan"
-      })
-    }
-  })
-  .catch(err => {
-    res.json({
-      info: "Data Id Tidak Ada",
-      err
-    })
-  });
-});
-
-//post trf saldo
-//Untuk Transfer Saldo
-router.post('/transfer_saldo/:id', function(req, res, next) {
-  var id = parseInt(req.params.id);
-  var idTarget = parseInt(req.body.idTarget);
-  var nominalTransfer = parseFloat(req.body.nominalTransfer);
-
-  if(idTarget != id && idTarget != null){
-    User.findOne({
-      include: [Saldo],
-      where: {id: id}
-    })
-    .then(transfer => {
-      Saldo.findByPk(id)
-    .then(saldoLama => {
-      if(saldoLama.nominalSaldo < nominalTransfer && saldoLama.nominalSaldo != 0){
-        res.json({
-          info: "Saldo Anda Tidak Mencukupi"
-        })
-      }else{
-        var saldoSekarang = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
-        var nominalSaldo = {
-          nominalSaldo: saldoSekarang
-        }
-        //Sudah Mengurangi Saldo Lama dan Jumlah Transfer
-        Saldo.update(nominalSaldo, {
-          where: {id: id}
-        })
-        .then(saldoBaru => {
-          //Membuat History Transaksi
-          //Untuk Menambahkan Saldo Target
-          Saldo.findByPk(idTarget)
-          .then(saldoTarget => {
-            var saldoTargetSekarang = parseFloat(saldoTarget.nominalSaldo + nominalTransfer);
-            var nominalSaldoTarget = {
-              nominalSaldo: saldoTargetSekarang
-            }
-            //Sudah Menambahkan Saldo Target
-            Saldo.update(nominalSaldoTarget, {
-              where: {id: idTarget}
-            })
-            .then(saldoTargetBaru => {//Membuat History Transaksi
-              res.json({
-                info: "Transfer Berhasil"
-              })
-            })
-            .catch(err => {
-              res.send(err);
-            });
-          })
-          .catch(err => {
-            res.send(err);
-          });
-        })
-        .catch(err => {
-          res.send(err);
-        });
-      }
-  })
-  .catch(err => {
-    res.send(err);
-  });
-  })
-    .catch(err => {
-      res.send(err);
-    });
-  }else{
-    res.json({
-      info: "ID penerima tidak boleh sama dengan ID pengirim / kosong"
-    })
-  }
-});
+})
 
 module.exports = router;
