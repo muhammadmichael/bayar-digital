@@ -292,13 +292,9 @@ router.post('/transfer_saldo/:id', function(req, res, next) {
               where: {id: idTarget}
             })
             .then(saldoTargetBaru => {//Membuat History Transaksi
-              var transaksi = {
-                idUser: id,
-                idTarget: idTarget,
-                nominalSaldo: saldoSekarang,
-                tanggal: Date(),
-                status: "Debit"
-              }
+              res.json({
+                info: "Transfer Berhasil"
+              })
             })
             .catch(err => {
               res.send(err);
