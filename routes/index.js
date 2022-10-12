@@ -239,18 +239,19 @@ router.get('/transfer/:id', auth, function (req, res, next) {
 });
 
 //transfer
-router.post('/payment', auth, function (req, res, next) {
+router.post('/payment', function (req, res, next) {
   // var id = parseInt(req.params.id);
   // var target = parseInt(req.params.target);
   var userPengirim = req.body.userMe;
   var userPenerima = req.body.userTarget;
   var nominalTransfer = parseFloat(req.body.nominal);
 
-  if (!req.body.tanggal){
+  if (!req.body.date){
     var tanggal = Date();
   }
   else{
-    var tanggal = req.body.tanggal;
+    // Untuk REST API
+    var tanggal = req.body.date;
   }
  
   User.findOne({
@@ -310,7 +311,16 @@ router.post('/payment', auth, function (req, res, next) {
                                 //   // saldoSekarang: nominalSaldo,
                                 //   status: num.status
                                 // })
-                                res.redirect('/valid/' + pengirim.id);
+                                if (!req.body.date){
+                                  res.redirect('/valid/' + pengirim.id);
+                                }
+                                else{
+                                  // Untuk REST API
+                                  res.json({
+                                    info: "Transaksi Sukses",
+                                  });
+                                }
+                                
                               })
                               .catch(err => {
                                 res.send(err);
