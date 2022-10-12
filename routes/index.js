@@ -229,7 +229,7 @@ router.get('/transfer/:id', function (req, res, next) {
   })
     .then(transfer => {
       if (transfer) {
-        res.render('transferSaldo', {
+        res.render('transfer', {
           title: 'Silahkan Transfer',
           transfer: transfer,
           saldo: transfer.saldo
