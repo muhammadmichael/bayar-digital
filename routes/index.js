@@ -11,29 +11,29 @@ const Saldo = db.saldos;
 const Op = db.Sequelize.Op;
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.render('index', {
     title: 'Express Start',
   })
 })
 
-router.get('/valid/:id', function(req, res, next) {
+router.get('/valid/:id', function (req, res, next) {
 
-    var id = parseInt(req.params.id);
-    Saldo.findOne({
-      include: [User],
-      where: {iduser: id}
-    })
-      .then(data => {
-        let user = data.user;
-        res.render('index', {
-          title: 'Selamat Datang ' + user.name,
-          saldo: data
-        })
+  var id = parseInt(req.params.id);
+  Saldo.findOne({
+    include: [User],
+    where: { iduser: id }
+  })
+    .then(data => {
+      let user = data.user;
+      res.render('index', {
+        title: 'Selamat Datang ' + user.name,
+        saldo: data
       })
-      .catch(err => {
-        res.send(err)
-      });
+    })
+    .catch(err => {
+      res.send(err)
+    });
 });
 
 // REGISTER
@@ -86,7 +86,7 @@ router.post('/login', function (req, res, next) {
           req.session.username = req.body.username;
           req.session.islogin = true;
 
-          res.redirect('/valid/'+ data.id);
+          res.redirect('/valid/' + data.id);
         } else {
           res.redirect('/login')
         }
@@ -110,78 +110,74 @@ router.get('/logout', function (req, res, next) {
 });
 
 //Untuk Mendapatkan Form Top Up
-router.get('/topup/:id', function(req, res, next) {
+router.get('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
-      include: [Saldo],
-      where: {id: id}
+    include: [Saldo],
+    where: { id: id }
   })
-	.then(topup => {
-		if(topup){
-			//res.send(topup);
-      	res.render('topUp', { 
-        	title: 'Silahkan Top Up',
-        	topup: topup,
+    .then(topup => {
+      if (topup) {
+        //res.send(topup);
+        res.render('topUp', {
+          title: 'Silahkan Top Up',
+          topup: topup,
           saldo: topup.saldo
-      	});
-		}else{
-			res.json({
-        info: "Data Tidak Ditemukan"
-      })
-		}	
-	})
-	.catch(err => {
-		res.json({
-      info: "Data Id Tidak Ada"
+        });
+      } else {
+        res.json({
+          info: "Data Tidak Ditemukan"
+        })
+      }
     })
-	});
+    .catch(err => {
+      res.json({
+        info: "Data Id Tidak Ada"
+      })
+    });
 });
 
 //Untuk Update Jumlah Saldo
-router.post('/topup/:id', function(req, res, next) {
+router.post('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   var topup = parseFloat(req.body.saldo);
 
   Saldo.findByPk(id)
-  .then(saldoLama => {
-    var topupSaldo = parseFloat(saldoLama.nominalSaldo + topup);
-    var nominalSaldo = {
-      nominalSaldo: topupSaldo
-    }
+    .then(saldoLama => {
+      var topupSaldo = parseFloat(saldoLama.nominalSaldo + topup);
+      var topUpInput = {
+        nominalSaldo: topupSaldo
+      }
 
-    //Sudah Menambahkan Saldo Lama dan Jumlah TopUp
-    Saldo.update(nominalSaldo, {
-      where: {id: id}
-    })
-    .then(saldoBaru => {
-    var transaksi = {
-      idUser: id,
-      idTarget: null,
-      nominalSaldo: topupSaldo,
-      tanggal: Date(),
-      status: "Top Up"
-    }
-      //Membuat History Transaksi
-      Transaksi.create(transaksi)
-      .then(num => {
-          // res.json({
-          //   saldoSekarang: nominalSaldo,
-          //   status: num.status
-          // })
-          // res.send(num)
-          res.redirect('/valid/'+ num.idUser);
+      //Sudah Menambahkan Saldo Lama dan Jumlah TopUp
+      Saldo.update(topUpInput, {
+        where: { id: id }
       })
-      .catch(err => {
+        .then(saldoBaru => {
+          var transaksi = {
+            idUser: id,
+            idTarget: null,
+            nominalSaldo: topup,
+            tanggal: Date(),
+            status: "Top Up"
+          }
+          //Membuat History Transaksi
+          Transaksi.create(transaksi)
+            .then(num => {
+              res.redirect('/valid/' + num.idUser);
+              //res.send(transaksi)
+            })
+            .catch(err => {
+              res.send(err);
+            });
+        })
+        .catch(err => {
           res.send(err);
-      });
+        });
     })
     .catch(err => {
       res.send(err);
     });
-  })
-  .catch(err => {
-    res.send(err);
-  });
 });
 
 // Get history transaksi
@@ -189,23 +185,23 @@ router.get('/history/:id', function (req, res, next) {
 
   var id = req.params.id;
 
-    Transaksi.findAll({
-      where: {
-        [Op.or]: [{idUser: id}, {idTarget: id}]
+  Transaksi.findAll({
+    where: {
+      [Op.or]: [{ idUser: id }, { idTarget: id }]
+    },
+    include: [
+      {
+        // include array user pengirim, Foreign Key: idUser
+        model: User,
+        as: 'pengirim',
       },
-      include: [
-        {
-          // include array user pengirim, Foreign Key: idUser
-          model: User,
-          as: 'pengirim',
-        },
-        {
-          // include array user penerima, Foreign Key: idTarget
-          model: User,
-          as: 'target'
-        }
+      {
+        // include array user penerima, Foreign Key: idTarget
+        model: User,
+        as: 'target'
+      }
     ],
-    })
+  })
     .then(transaksi => {
       res.render('historytransaksi', {
         title: 'History Transaksi',
@@ -213,114 +209,140 @@ router.get('/history/:id', function (req, res, next) {
       });
     })
     .catch(err => {
-        res.json({
-          info: "Error",
-          message: err.message,
-          transaksis: []
-        });
+      res.json({
+        info: "Error",
+        message: err.message,
+        transaksis: []
       });
+    });
 });
 
-//view trf saldo
-router.get('/transfersaldo/:id', function(req, res, next) {
+router.get('/transfer/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
-      include: [Saldo],
-      where: {id: id}
+    include: [Saldo],
+    where: { id: id }
   })
-  .then(transfer => {
-    if(transfer){
-      //res.send(transfer);
+    .then(transfer => {
+      if (transfer) {
         res.render('transferSaldo', {
           title: 'Silahkan Transfer',
           transfer: transfer,
           saldo: transfer.saldo
         });
-    }else{
-      res.json({
-        info: "Data Tidak Ditemukan"
-      })
-    }
-  })
-  .catch(err => {
-    res.json({
-      info: "Data Id Tidak Ada",
-      err
+      } else {
+        res.json({
+          info: "Data Tidak Ditemukan"
+        })
+      }
     })
-  });
+    .catch(err => {
+      res.json({
+        info: "Data Id Tidak Ada"
+      })
+    });
 });
 
-//post trf saldo
-//Untuk Transfer Saldo
-router.post('/transfer_saldo/:id', function(req, res, next) {
-  var id = parseInt(req.params.id);
-  var idTarget = parseInt(req.body.idTarget);
-  var nominalTransfer = parseFloat(req.body.nominalTransfer);
+//transfer
+router.post('/transfer', function (req, res, next) {
+  // var id = parseInt(req.params.id);
+  // var target = parseInt(req.params.target);
+  var userPengirim = req.body.userMe;
+  var userPenerima = req.body.userTarget;
+  var nominalTransfer = parseFloat(req.body.nominal);
+  var tanggal = Date();
 
-  if(idTarget != id && idTarget != null){
-    User.findOne({
-      include: [Saldo],
-      where: {id: id}
-    })
-    .then(transfer => {
-      Saldo.findByPk(id)
-    .then(saldoLama => {
-      if(saldoLama.nominalSaldo < nominalTransfer && saldoLama.nominalSaldo != 0){
-        res.json({
-          info: "Saldo Anda Tidak Mencukupi"
-        })
-      }else{
-        var saldoSekarang = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
-        var nominalSaldo = {
-          nominalSaldo: saldoSekarang
-        }
-        //Sudah Mengurangi Saldo Lama dan Jumlah Transfer
-        Saldo.update(nominalSaldo, {
-          where: {id: id}
-        })
-        .then(saldoBaru => {
-          //Membuat History Transaksi
-          //Untuk Menambahkan Saldo Target
-          Saldo.findByPk(idTarget)
-          .then(saldoTarget => {
-            var saldoTargetSekarang = parseFloat(saldoTarget.nominalSaldo + nominalTransfer);
-            var nominalSaldoTarget = {
-              nominalSaldo: saldoTargetSekarang
-            }
-            //Sudah Menambahkan Saldo Target
-            Saldo.update(nominalSaldoTarget, {
-              where: {id: idTarget}
-            })
-            .then(saldoTargetBaru => {//Membuat History Transaksi
-              res.json({
-                info: "Transfer Berhasil"
-              })
+  User.findOne({
+    where: { username: userPengirim }
+  })
+    .then(pengirim => {
+      var id = pengirim.id;
+      User.findOne({
+        where: { username: userPenerima }
+      })
+        .then(penerima => {
+          var target = penerima.id;
+          // Saldo.findAll({where: {userId: idUser}})
+          Saldo.findByPk(id)
+            .then(saldoLama => {
+              var sisaSaldo = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
+
+              if (sisaSaldo >= 0) {
+                var nominalSaldo = {
+                  nominalSaldo: sisaSaldo
+                }
+
+                //Sudah Mengurangi Saldo Lama 
+                Saldo.update(nominalSaldo, {
+                  // where: {userId: idUser}
+                  where: { id: id }
+                })
+                  .then(saldoBaru => {
+                    var transaksi = {
+                      idUser: id,
+                      idTarget: target,
+                      nominalSaldo: nominalTransfer,
+                      tanggal: tanggal,
+                      status: `transfer sukses : Berhasil Mengirim Dari ${pengirim.name} menuju ${penerima.name}`
+                    }
+                    //Membuat History Transaksi
+                    Transaksi.create(transaksi)
+                      .then(num => {
+
+                        // NAMBAH SALDO TARGET
+                        // Saldo.findAll({where: {userId: idUser}})
+                        Saldo.findByPk(target)
+                          .then(saldoLama => {
+                            var sisaSaldo = parseFloat(saldoLama.nominalSaldo + nominalTransfer);
+                            var nominalSaldo = {
+                              nominalSaldo: sisaSaldo
+                            }
+
+                            //Sudah Mengurangi Saldo Lama 
+                            Saldo.update(nominalSaldo, {
+                              // where: {userId: idUser}
+                              where: { id: target }
+                            })
+                              .then(saldoBaru => {
+                                // res.json({
+                                //   saldoSekarang: sisaSaldo,
+                                //   // saldoSekarang: nominalSaldo,
+                                //   status: num.status
+                                // })
+                                res.redirect('/valid/' + pengirim.id);
+                              })
+                              .catch(err => {
+                                res.send(err);
+                              });
+
+                          })
+                          .catch(err => {
+                            res.send(err);
+                          });
+
+                      })
+                      .catch(err => {
+                        res.send(err);
+                      });
+
+                  })
+                  .catch(err => {
+                    res.send(err);
+                  });
+              } else {
+                res.json({
+                  info: "Saldo Kurang"
+                })
+              }
             })
             .catch(err => {
               res.send(err);
             });
-          })
-          .catch(err => {
-            res.send(err);
-          });
         })
         .catch(err => {
-          res.send(err);
+          res.send(err)
         });
-      }
-  })
-  .catch(err => {
-    res.send(err);
-  });
-  })
-    .catch(err => {
-      res.send(err);
     });
-  }else{
-    res.json({
-      info: "ID penerima tidak boleh sama dengan ID pengirim / kosong"
-    })
-  }
-});
+})
 
 module.exports = router;
