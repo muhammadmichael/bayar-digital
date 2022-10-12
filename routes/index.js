@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcryptjs')
 
+const paginate = require('express-paginate');
 const auth = require('../auth')
 const db = require('../models');
 const { FLOAT } = require('sequelize');
@@ -11,7 +12,14 @@ const Saldo = db.saldos;
 const Op = db.Sequelize.Op;
 
 /* GET home page. */
-router.get('/valid/:id', auth, function (req, res, next) {
+router.get('/', function (req, res, next) {
+  res.render('index', {
+    title: 'Express Start',
+    
+  })
+})
+
+router.get('/valid/:id', function (req, res, next) {
 
   var id = parseInt(req.params.id);
   Saldo.findOne({
@@ -104,7 +112,7 @@ router.get('/logout', function (req, res, next) {
 });
 
 //Untuk Mendapatkan Form Top Up
-router.get('/topup/:id', auth, function (req, res, next) {
+router.get('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
     include: [Saldo],
@@ -132,7 +140,7 @@ router.get('/topup/:id', auth, function (req, res, next) {
 });
 
 //Untuk Update Jumlah Saldo
-router.post('/topup/:id', auth, function (req, res, next) {
+router.post('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   var topup = parseFloat(req.body.saldo);
 
@@ -173,13 +181,15 @@ router.post('/topup/:id', auth, function (req, res, next) {
       res.send(err);
     });
 });
-
+app.use(paginate.middleware(10, 50));
 // Get history transaksi
-router.get('/history/:id', auth, function (req, res, next) {
+router.get('/history/:id', function (req, res, next) {
 
   var id = req.params.id;
 
   Transaksi.findAll({
+    limit: req.query.limit, 
+    offset: req.skip,
     where: {
       [Op.or]: [{ idUser: id }, { idTarget: id }]
     },
@@ -197,10 +207,14 @@ router.get('/history/:id', auth, function (req, res, next) {
     ],
   })
     .then(transaksi => {
+      const itemCount = results.count;
+      const pageCount = Math.ceil(results.count / req.query.limit);
       res.render('historytransaksi', {
         title: 'History Transaksi',
         transaksis: transaksi,
-        id: id,
+        pageCount,
+        itemCount,
+        pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)
       });
     })
     .catch(err => {
@@ -212,7 +226,7 @@ router.get('/history/:id', auth, function (req, res, next) {
     });
 });
 
-router.get('/transfer/:id', auth, function (req, res, next) {
+router.get('/transfer/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
     include: [Saldo],
@@ -239,20 +253,14 @@ router.get('/transfer/:id', auth, function (req, res, next) {
 });
 
 //transfer
-router.post('/payment', auth, function (req, res, next) {
+router.post('/transfer', function (req, res, next) {
   // var id = parseInt(req.params.id);
   // var target = parseInt(req.params.target);
   var userPengirim = req.body.userMe;
   var userPenerima = req.body.userTarget;
   var nominalTransfer = parseFloat(req.body.nominal);
+  var tanggal = Date();
 
-  if (!req.body.tanggal){
-    var tanggal = Date();
-  }
-  else{
-    var tanggal = req.body.tanggal;
-  }
- 
   User.findOne({
     where: { username: userPengirim }
   })
@@ -331,7 +339,9 @@ router.post('/payment', auth, function (req, res, next) {
                     res.send(err);
                   });
               } else {
-                res.redirect('/valid/' + pengirim.id);
+                res.json({
+                  info: "Saldo Kurang"
+                })
               }
             })
             .catch(err => {
