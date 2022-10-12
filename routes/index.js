@@ -239,7 +239,7 @@ router.get('/transfer/:id', auth, function (req, res, next) {
 });
 
 //transfer
-router.post('/payment', function (req, res, next) {
+router.post('/payment', auth, function (req, res, next) {
   // var id = parseInt(req.params.id);
   // var target = parseInt(req.params.target);
   var userPengirim = req.body.userMe;
