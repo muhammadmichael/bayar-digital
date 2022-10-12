@@ -1,27 +1,31 @@
 <%- include('templates/header')-%>
-<form>
-    <div class="form-group">
-      Nama User: <p><%= transfer.name %> </p><br>Saldo: 
-      <p><%= saldo.nominalSaldo %> </p>
+
+  <form method="POST" action="/transfer">
+    <h1>
+      <%= title %>
+        <%= transfer.name %>
+    </h1>
+    <p>Saldo Anda Sekarang : <%= saldo.nominalSaldo %>
+    </p>
+    <div class="visually-hidden-focusable">
+      <label class="input-group-text" for="userMe">User Pengirim</label>
+      <input type="text" class="form-control" id="userMe" name="userMe" value="<%= transfer.username %>">
     </div>
-    <div class="form-group">
-      <label for="idpenerima">ID Penerima</label>
-      <input type="text" class="form-control" id="idpenerima" placeholder="Enter ID">
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="userTarget">User Penerima</label>
+      <input type="text" class="form-control" id="userTarget" name="userTarget" placeholder="Masukkan User">
     </div>
     <div class="input-group mb-3 form-group">
-        <label for="nominal">Nominal</label>
-        <div class="input-group-prepend">
-          <span class="input-group-text">Rp. </span>
-        </div>
-        <input type="number" class="form-control" name="nominal" step="5000" min="5000">
-        <div class="input-group-append">
-          <span class="input-group-text">.00</span>
-        </div>
+      <label class="input-group-text" for="nominal">Nominal</label>
+      <div class="input-group-prepend">
+        <span class="input-group-text">Rp. </span>
       </div>
-    <!-- <div class="form-group">
-      <label for="nominal">Nominal</label>
-      <input type="text" class="form-control" id="nominal" placeholder="10000">
-    </div> -->
+      <input type="number" class="form-control" id="nominal" name="nominal" step="0.001" min="1">
+      <div class="input-group-append">
+        <span class="input-group-text">.00</span>
+      </div>
+    </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-<%- include('templates/footer')-%>
+
+  <%- include('templates/footer')-%>
