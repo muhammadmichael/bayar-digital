@@ -7,7 +7,6 @@ var session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var transaksiRouter = require('./routes/transaksi');
 
 var app = express();
 
@@ -40,7 +39,6 @@ db.sequelize.sync()
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/transaksi', transaksiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
