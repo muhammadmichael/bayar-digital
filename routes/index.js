@@ -10,15 +10,9 @@ const Transaksi = db.transaksis;
 const Saldo = db.saldos;
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('transfer', { title: 'bebas' });
-});
-
-
-/* GET home page. */
 router.get('/transfer', function(req, res, next) {
   
-  res.render('transfer', { title: 'transfer' });
+  res.render('transfer', { title: '' });
 });
 
 // REGISTER
@@ -48,12 +42,10 @@ router.post('/register', function (req, res, next) {
 });
 
 //transfer
-router.post('/transfer/:id/:target', function(req, res, next) {
-  var id = parseInt(req.params.id);
-  var target = parseInt(req.params.target);
-  // var idUser = parseFloat(req.body.idUser);
-  // var idTarget = parseFloat(req.body.idTarget);
-  var nominalTransfer = parseFloat(req.body.nominalSaldo);
+router.post('/transfer/:id', function(req, res, next) {
+  var id = parseInt(req.body.id);
+  var target = parseInt(req.body.target);
+  var nominalTransfer = parseFloat(req.body.nominal);
 
   // Saldo.findAll({where: {userId: idUser}})
   Saldo.findByPk(id)
@@ -97,6 +89,7 @@ router.post('/transfer/:id/:target', function(req, res, next) {
           .then(saldoBaru => {
             res.json({
               saldoSekarang: sisaSaldo,
+              
               // saldoSekarang: nominalSaldo,
               status: num.status
             })
