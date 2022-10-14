@@ -88,7 +88,7 @@ router.post('/api/register', function (req, res, next) {
           info: "Username or Email already exist"
         })
       } else {
-// Create user dan juga saldo dengan nominal 0
+        // Create user dan juga saldo dengan nominal 0
         Saldo.create({
           nominalSaldo: 0,
           user
@@ -138,7 +138,7 @@ router.post('/api/payment', function (req, res, next) {
   var userPenerima = req.body.userTarget;
   var nominalTransfer = parseFloat(req.body.nominal);
   var tanggal = req.body.date;
- 
+
   User.findOne({
     where: { username: userPengirim }
   })
@@ -196,11 +196,11 @@ router.post('/api/payment', function (req, res, next) {
                                 //   // saldoSekarang: nominalSaldo,
                                 //   status: num.status
                                 // })
-                                  // Untuk REST API
-                                  res.json({
-                                    info: "Transaksi Sukses",
-                                  });
-                                
+                                // Untuk REST API
+                                res.json({
+                                  info: "Transaksi Sukses",
+                                });
+
                               })
                               .catch(err => {
                                 res.send(err);
@@ -426,7 +426,7 @@ router.post('/transfer', auth, function (req, res, next) {
     // Untuk REST API
     var tanggal = req.body.date;
   }
- 
+
   User.findOne({
     where: { username: userPengirim }
   })
@@ -493,7 +493,7 @@ router.post('/transfer', auth, function (req, res, next) {
                                     info: "Transaksi Sukses",
                                   });
                                 }
-                                
+
                               })
                               .catch(err => {
                                 res.send(err);
