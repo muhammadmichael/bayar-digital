@@ -11,6 +11,10 @@ const Saldo = db.saldos;
 const Op = db.Sequelize.Op;
 
 /* GET home page. */
+router.get('/', function (req, res, next) {
+  res.render('loginform' , {title: "Bayar Digital"});
+})
+
 router.get('/valid/:id', auth, function (req, res, next) {
 
   var id = parseInt(req.params.id);
