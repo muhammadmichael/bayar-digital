@@ -63,6 +63,179 @@ router.post('/register', function (req, res, next) {
     });
 });
 
+// API Register
+// POST
+router.post('/api/register', function (req, res, next) {
+  var hash = bcrypt.hashSync(req.body.password, 8);
+
+  var user = {
+    name: req.body.name,
+    email: req.body.email,
+    username: req.body.username,
+    password: hash,
+  }
+  // user cannot be same
+  User.findOne({
+    where: {
+      [Op.or]: [
+        { username: user.username },
+      ]
+    }
+  })
+    .then(data => {
+      if (data) {
+        res.json({
+          info: "Username or Email already exist"
+        })
+      } else {
+// Create user dan juga saldo dengan nominal 0
+        Saldo.create({
+          nominalSaldo: 0,
+          user
+        }, {
+          include: [User]
+        })
+          .then(data => {
+            res.json({
+              info: "User Berhasil Ditambahkan"
+            })
+          })
+          .catch(err => {
+            res.json({
+              info: "User Gagal Ditambahkan"
+            })
+          })
+      }
+    })
+    .catch(err => {
+      res.send(err)
+    })
+});
+
+// API Get Saldo
+// GET
+router.get('/api/getsaldo/:username', function (req, res, next) {
+
+  var username = req.params.username;
+  User.findOne({
+    where: { username: username },
+    include: [Saldo]
+  })
+    .then(data => {
+      res.json({
+        nominal: data.saldo.nominalSaldo
+      })
+    })
+    .catch(err => {
+      res.send(err)
+    });
+});
+
+// API Payment
+router.post('/api/payment', function (req, res, next) {
+
+  var userPengirim = req.body.userMe;
+  var userPenerima = req.body.userTarget;
+  var nominalTransfer = parseFloat(req.body.nominal);
+  var tanggal = req.body.date;
+ 
+  User.findOne({
+    where: { username: userPengirim }
+  })
+    .then(pengirim => {
+      var id = pengirim.id;
+      User.findOne({
+        where: { username: userPenerima }
+      })
+        .then(penerima => {
+          var target = penerima.id;
+          // Saldo.findAll({where: {userId: idUser}})
+          Saldo.findByPk(id)
+            .then(saldoLama => {
+              var sisaSaldo = parseFloat(saldoLama.nominalSaldo - nominalTransfer);
+
+              if (sisaSaldo >= 0) {
+                var nominalSaldo = {
+                  nominalSaldo: sisaSaldo
+                }
+
+                //Sudah Mengurangi Saldo Lama 
+                Saldo.update(nominalSaldo, {
+                  // where: {userId: idUser}
+                  where: { id: id }
+                })
+                  .then(saldoBaru => {
+                    var transaksi = {
+                      idUser: id,
+                      idTarget: target,
+                      nominalSaldo: nominalTransfer,
+                      tanggal: tanggal,
+                      status: `transfer sukses : Berhasil Mengirim Dari ${pengirim.name} menuju ${penerima.name}`
+                    }
+                    //Membuat History Transaksi
+                    Transaksi.create(transaksi)
+                      .then(num => {
+
+                        // NAMBAH SALDO TARGET
+                        // Saldo.findAll({where: {userId: idUser}})
+                        Saldo.findByPk(target)
+                          .then(saldoLama => {
+                            var sisaSaldo = parseFloat(saldoLama.nominalSaldo + nominalTransfer);
+                            var nominalSaldo = {
+                              nominalSaldo: sisaSaldo
+                            }
+
+                            //Sudah Mengurangi Saldo Lama 
+                            Saldo.update(nominalSaldo, {
+                              // where: {userId: idUser}
+                              where: { id: target }
+                            })
+                              .then(saldoBaru => {
+                                // res.json({
+                                //   saldoSekarang: sisaSaldo,
+                                //   // saldoSekarang: nominalSaldo,
+                                //   status: num.status
+                                // })
+                                  // Untuk REST API
+                                  res.json({
+                                    info: "Transaksi Sukses",
+                                  });
+                                
+                              })
+                              .catch(err => {
+                                res.send(err);
+                              });
+
+                          })
+                          .catch(err => {
+                            res.send(err);
+                          });
+
+                      })
+                      .catch(err => {
+                        res.send(err);
+                      });
+
+                  })
+                  .catch(err => {
+                    res.send(err);
+                  });
+              } else {
+                res.json({
+                  info: "Saldo Tidak Mencukupi",
+                });
+              }
+            })
+            .catch(err => {
+              res.send(err);
+            });
+        })
+        .catch(err => {
+          res.send(err)
+        });
+    });
+})
+
 // Login
 // GET
 router.get('/login', function (req, res, next) {
@@ -238,8 +411,8 @@ router.get('/transfer/:id', auth, function (req, res, next) {
     });
 });
 
-//transfer
-router.post('/payment', auth, function (req, res, next) {
+// Transfer
+router.post('/transfer', auth, function (req, res, next) {
   // var id = parseInt(req.params.id);
   // var target = parseInt(req.params.target);
   var userPengirim = req.body.userMe;
