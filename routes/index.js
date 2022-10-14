@@ -15,7 +15,7 @@ router.get('/', function (req, res, next) {
   res.render('loginform' , {title: "Bayar Digital"});
 })
 
-router.get('/valid/:id', auth, function (req, res, next) {
+router.get('/valid/:id', function (req, res, next) {
 
   var id = parseInt(req.params.id);
   Saldo.findOne({
@@ -281,7 +281,7 @@ router.get('/logout', function (req, res, next) {
 });
 
 //Untuk Mendapatkan Form Top Up
-router.get('/topup/:id', auth, function (req, res, next) {
+router.get('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
     include: [Saldo],
@@ -309,7 +309,7 @@ router.get('/topup/:id', auth, function (req, res, next) {
 });
 
 //Untuk Update Jumlah Saldo
-router.post('/topup/:id', auth, function (req, res, next) {
+router.post('/topup/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   var topup = parseFloat(req.body.saldo);
 
@@ -352,7 +352,7 @@ router.post('/topup/:id', auth, function (req, res, next) {
 });
 
 // Get history transaksi
-router.get('/history/:id', auth, function (req, res, next) {
+router.get('/history/:id', function (req, res, next) {
 
   var id = req.params.id;
 
@@ -389,7 +389,7 @@ router.get('/history/:id', auth, function (req, res, next) {
     });
 });
 
-router.get('/transfer/:id', auth, function (req, res, next) {
+router.get('/transfer/:id', function (req, res, next) {
   var id = parseInt(req.params.id);
   User.findOne({
     include: [Saldo],
@@ -416,7 +416,7 @@ router.get('/transfer/:id', auth, function (req, res, next) {
 });
 
 // Transfer
-router.post('/transfer', auth, function (req, res, next) {
+router.post('/transfer', function (req, res, next) {
   // var id = parseInt(req.params.id);
   // var target = parseInt(req.params.target);
   var userPengirim = req.body.userMe;
